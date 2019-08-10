@@ -1,0 +1,21 @@
+{
+	"WowAddonFolder": "H:\\Games\\World of Warcraft\\_retail_\\Interface\\AddOns2",
+	"InstalledFile": "installed.csv",
+	"AddonsFile": "addons.csv",
+	"Threads": 1,
+	"Curse": [
+		{
+			"ElementsSelector": "table.listing-project-file tbody tr",
+			"Tests": [
+				"td:nth-child(1):contains($ReleaseType$)",
+				"td div:matches(^[3-9]+\\.\\d+)"
+			],
+			"VersionSelector": "td a[data-action=file-link]",
+			"LinkSelector": "td a[href~=\\d$]:has(svg)"
+		},
+		{
+			"ElementsSelector": "html",
+			"LinkSelector": "a[href~=/wow/addons/[^/]+/download/\\d+/]"
+		}
+	]
+}
