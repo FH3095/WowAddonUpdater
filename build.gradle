@@ -1,0 +1,23 @@
+
+
+plugins {
+	id 'application'
+	id 'java'
+    id 'java-library'
+    id 'eclipse'
+}
+
+version = '1.0'
+mainClassName = 'eu._4fh.WowAddonUpdater.Main'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    implementation 'org.jsoup:jsoup:1.+'
+	implementation 'com.google.code.findbugs:jsr305:3.+'
+	implementation 'com.opencsv:opencsv:4.+'
+	implementation 'commons-cli:commons-cli:1.+'
+	implementation 'org.json:json:20180813'
+}
