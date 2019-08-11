@@ -6,6 +6,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -16,6 +18,7 @@ import eu._4fh.WowAddonUpdater.Util.Pair;
 import eu._4fh.WowAddonUpdater.data.AddonInfo;
 
 public class AddonUpdater implements Runnable {
+	private final Logger log = java.util.logging.Logger.getLogger(this.getClass().getName());
 	private final @Nonnull AddonInfo addonInfo;
 
 	public AddonUpdater(final @Nonnull AddonInfo addonInfo) {
@@ -32,7 +35,7 @@ public class AddonUpdater implements Runnable {
 	}
 
 	private void unzipAddonFile(final @Nonnull File zipFile) throws FileNotFoundException, IOException {
-		Output.important("Unzip " + addonInfo.getName());
+		log.info("Unzip " + addonInfo.getName());
 
 		try (final ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile))) {
 			ZipEntry zipEntry;
@@ -55,7 +58,7 @@ public class AddonUpdater implements Runnable {
 		try {
 			doUpdate();
 		} catch (InvalidUserInputError e) {
-			Output.error("Invalid input for addon " + addonInfo.getFilesUrl() + ": " + e.getLocalizedMessage());
+			log.log(Level.SEVERE, "Invalid input for addon " + addonInfo.getFilesUrl(), e);
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		}

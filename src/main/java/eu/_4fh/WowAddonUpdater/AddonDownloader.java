@@ -13,6 +13,7 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.logging.Logger;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -27,6 +28,7 @@ import eu._4fh.WowAddonUpdater.Util.Pair;
 import eu._4fh.WowAddonUpdater.data.AddonInfo;
 
 public class AddonDownloader {
+	private final Logger log = Logger.getLogger(this.getClass().getName());
 	private final @Nonnull AddonInfo addonInfo;
 	private @CheckForNull String newVersion;
 	private final @Nonnull HttpClient httpClient;
@@ -90,13 +92,13 @@ public class AddonDownloader {
 
 	public @CheckForNull Pair<String, File> getZipFileForNewVersion()
 			throws InvalidUserInputError, IOException, InterruptedException, URISyntaxException {
-		Output.normal("Check " + addonInfo.getName());
+		log.fine("Check " + addonInfo.getName());
 		final URL downloadUrl = executeSteps();
 		if (newVersion == null) {
 			throw new RuntimeException("Cant find addon version for " + addonInfo.getName());
 		}
 		if (newVersion.equals(addonInfo.getVersion())) {
-			Output.normal("Up-To-Date: " + addonInfo.getName());
+			log.fine("Up-To-Date: " + addonInfo.getName());
 			return null;
 		}
 		final @Nonnull File zipFile = downloadZipFile(downloadUrl);

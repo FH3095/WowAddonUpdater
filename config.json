@@ -2,7 +2,6 @@
 	"WowAddonFolder": "H:\\Games\\World of Warcraft\\_retail_\\Interface\\AddOns2",
 	"InstalledFile": "installed.csv",
 	"AddonsFile": "addons.csv",
-	"OutputLevel": "NORMAL",
 	"Threads": 3,
 	"Curse": [
 		{

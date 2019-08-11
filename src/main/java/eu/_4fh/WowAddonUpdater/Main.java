@@ -11,6 +11,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -24,7 +27,7 @@ import eu._4fh.WowAddonUpdater.data.AddonInfo;
 import eu._4fh.WowAddonUpdater.data.AddonInfoParser;
 
 public class Main {
-
+	private static final Logger log = java.util.logging.Logger.getLogger(Main.class.getName());
 	private static final Option installOption = new Option("i", "install", true,
 			"Installs the addon from the link. Link must be in format https://www.curseforge.com/wow/addons/deadly-boss-mods/files");
 	private static final Option removeOption = new Option("r", "remove", true, "Remove the addon from the link.");
@@ -46,6 +49,14 @@ public class Main {
 	}
 
 	public static void main(String[] args) {
+		System.setProperty("java.util.logging.config.file", "logging.properties");
+		try {
+			LogManager.getLogManager().readConfiguration();
+		} catch (Exception e) {
+			e.printStackTrace();
+			Runtime.getRuntime().exit(1);
+		}
+
 		final CommandLine cmd;
 		try {
 			cmd = new DefaultParser().parse(options, args, false);
@@ -83,7 +94,7 @@ public class Main {
 			try {
 				updaterResult.get();
 			} catch (InterruptedException | ExecutionException e) {
-				e.printStackTrace();
+				log.log(Level.SEVERE, "", e);
 			}
 		}
 
