@@ -7,7 +7,7 @@ plugins {
     id 'eclipse'
 }
 
-version = '1.0'
+version = '0.2'
 mainClassName = 'eu._4fh.WowAddonUpdater.Main'
 
 repositories {

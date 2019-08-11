@@ -15,6 +15,8 @@ import javax.annotation.Nonnull;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import eu._4fh.WowAddonUpdater.Output.OutputTypes;
+
 public class Config {
 	private static Config config = null;
 
@@ -23,6 +25,7 @@ public class Config {
 	private final @Nonnull File addonsCsv;
 	private final @Nonnull File installedCsv;
 	private final int numThreads;
+	private final OutputTypes outputLevel;
 	private final List<DownloadStep> curseSteps;
 
 	public Config() {
@@ -38,6 +41,7 @@ public class Config {
 		addonsCsv = new File(obj.getString("AddonsFile"));
 		installedCsv = new File(obj.getString("InstalledFile"));
 		numThreads = obj.getInt("Threads");
+		outputLevel = OutputTypes.valueOf(obj.getString("OutputLevel"));
 		curseSteps = readSteps(obj.getJSONArray("Curse"));
 
 		if (!addonsFolder.isDirectory()) {
@@ -94,6 +98,10 @@ public class Config {
 
 	public int getNumThreads() {
 		return numThreads;
+	}
+
+	public OutputTypes getOutputLevel() {
+		return outputLevel;
 	}
 
 	public @Nonnull List<DownloadStep> getCurseSteps() {

@@ -32,7 +32,7 @@ public class AddonUpdater implements Runnable {
 	}
 
 	private void unzipAddonFile(final @Nonnull File zipFile) throws FileNotFoundException, IOException {
-		System.out.println("Unzip " + addonInfo.getName());
+		Output.important("Unzip " + addonInfo.getName());
 
 		try (final ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile))) {
 			ZipEntry zipEntry;
@@ -55,7 +55,7 @@ public class AddonUpdater implements Runnable {
 		try {
 			doUpdate();
 		} catch (InvalidUserInputError e) {
-			System.err.println("Invalid input for addon " + addonInfo.getFilesUrl() + ": " + e.getLocalizedMessage());
+			Output.error("Invalid input for addon " + addonInfo.getFilesUrl() + ": " + e.getLocalizedMessage());
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		}

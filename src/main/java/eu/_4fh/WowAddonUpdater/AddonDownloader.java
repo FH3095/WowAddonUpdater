@@ -36,7 +36,7 @@ public class AddonDownloader {
 		this.addonInfo = addonInfo;
 		this.newVersion = null;
 		this.cookieManager = new CookieManager(null, CookiePolicy.ACCEPT_ALL);
-		this.httpClient = HttpClient.newBuilder().followRedirects(Redirect.ALWAYS).cookieHandler(cookieManager)
+		this.httpClient = HttpClient.newBuilder().followRedirects(Redirect.NEVER).cookieHandler(cookieManager)
 				.connectTimeout(Duration.ofSeconds(90)).version(Version.HTTP_1_1).build();
 	}
 
@@ -81,8 +81,8 @@ public class AddonDownloader {
 	private @Nonnull Document getHtmlPage(final @Nonnull URL url)
 			throws IOException, InterruptedException, URISyntaxException {
 		final String pageHtml;
-		final HttpResponse<String> resp = httpClient.send(Util.prepareHttpRequest(url), BodyHandlers.ofString());
-		Util.checkResponseCode(resp, url);
+		final HttpResponse<String> resp = Util.sendHttpRequestAndFollowRedirects(httpClient, url,
+				BodyHandlers.ofString());
 		pageHtml = resp.body();
 		final Document doc = Jsoup.parse(pageHtml, url.toString());
 		return doc;
@@ -90,13 +90,13 @@ public class AddonDownloader {
 
 	public @CheckForNull Pair<String, File> getZipFileForNewVersion()
 			throws InvalidUserInputError, IOException, InterruptedException, URISyntaxException {
-		System.out.println("Check " + addonInfo.getName());
+		Output.normal("Check " + addonInfo.getName());
 		final URL downloadUrl = executeSteps();
 		if (newVersion == null) {
 			throw new RuntimeException("Cant find addon version for " + addonInfo.getName());
 		}
 		if (newVersion.equals(addonInfo.getVersion())) {
-			System.out.println("Up-To-Date: " + addonInfo.getName());
+			Output.normal("Up-To-Date: " + addonInfo.getName());
 			return null;
 		}
 		final @Nonnull File zipFile = downloadZipFile(downloadUrl);
@@ -106,7 +106,7 @@ public class AddonDownloader {
 	private final @Nonnull File downloadZipFile(final @Nonnull URL url)
 			throws IOException, InterruptedException, URISyntaxException {
 		final @Nonnull File zipFile = Util.createTempFile();
-		final HttpResponse<Path> resp = httpClient.send(Util.prepareHttpRequest(url),
+		final HttpResponse<Path> resp = Util.sendHttpRequestAndFollowRedirects(httpClient, url,
 				BodyHandlers.ofFile(zipFile.toPath()));
 		resp.body();
 		return zipFile;

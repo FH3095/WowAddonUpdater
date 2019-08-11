@@ -6,18 +6,30 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandler;
 import java.time.Duration;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import javax.annotation.Nonnull;
 
 public class Util {
+	private static final Set<Integer> redirectStatusCodes = Collections
+			.unmodifiableSet(new HashSet<>(Arrays.asList(HttpURLConnection.HTTP_MOVED_PERM,
+					HttpURLConnection.HTTP_MOVED_TEMP, HttpURLConnection.HTTP_SEE_OTHER, 307, 308)));
+
 	private Util() {
 	}
 
@@ -46,13 +58,40 @@ public class Util {
 		}
 	}
 
-	public static @Nonnull HttpRequest prepareHttpRequest(final @Nonnull URL url) throws URISyntaxException {
+	public static @Nonnull <T> HttpResponse<T> sendHttpRequestAndFollowRedirects(final @Nonnull HttpClient httpClient,
+			final @Nonnull URL url, final @Nonnull BodyHandler<T> bodyHandler)
+			throws IOException, InterruptedException, URISyntaxException {
+		URL nextUrl = url;
+		boolean isRedirect;
+		HttpResponse<T> resp;
+		do {
+			resp = httpClient.send(Util.prepareHttpRequest(nextUrl), bodyHandler);
+			checkResponseCode(resp, nextUrl);
+			if (redirectStatusCodes.contains(resp.statusCode())) {
+				isRedirect = true;
+				final String newLocation = resp.headers().firstValue("Location").orElse(null);
+				if (newLocation == null) {
+					throw new RuntimeException("Missing location header for redirect from " + url.toString() + " ("
+							+ nextUrl.toString() + ")");
+				}
+				final URL tmpUrl = new URL(newLocation);
+				nextUrl = new URI(tmpUrl.getProtocol(), tmpUrl.getUserInfo(), tmpUrl.getHost(), tmpUrl.getPort(),
+						tmpUrl.getPath(), tmpUrl.getQuery(), tmpUrl.getRef()).normalize().toURL();
+			} else {
+				isRedirect = false;
+			}
+		} while (isRedirect);
+		return resp;
+	}
+
+	private static @Nonnull HttpRequest prepareHttpRequest(final @Nonnull URL url) throws URISyntaxException {
 		return HttpRequest.newBuilder().GET().uri(url.toURI()).timeout(Duration.ofSeconds(90))
 				.setHeader("User-Agent", Config.getInstance().getUserAgent()).build();
 	}
 
-	public static <T> void checkResponseCode(final HttpResponse<T> response, final @Nonnull URL url) {
-		if (response.statusCode() < 200 || response.statusCode() > 299) {
+	private static <T> void checkResponseCode(final HttpResponse<T> response, final @Nonnull URL url) {
+		if ((response.statusCode() < 200 || response.statusCode() > 299)
+				&& !redirectStatusCodes.contains(response.statusCode())) {
 			throw new IllegalStateException("Cant fetch " + url.toString() + ": " + response.statusCode());
 		}
 	}
