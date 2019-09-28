@@ -1,8 +1,8 @@
 {
-	"WowAddonFolder": "H:\\Games\\World of Warcraft\\_retail_\\Interface\\AddOns2",
+	"WowAddonFolder": "TestAddonsDir",
 	"InstalledFile": "installed.csv",
 	"AddonsFile": "addons.csv",
-	"Threads": 3,
+	"Threads": 1,
 	"Curse": [
 		{
 			"ElementsSelector": "table.listing-project-file tbody tr",
